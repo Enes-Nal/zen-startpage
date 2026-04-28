@@ -7,16 +7,18 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 const isGitHubPages = process.env.GITHUB_PAGES === "true";
+const isVercel = process.env.VERCEL === "1" || process.env.VERCEL === "true";
+const isStaticHost = isGitHubPages || isVercel;
 
 export default defineConfig({
-  cloudflare: isGitHubPages ? false : undefined,
+  cloudflare: isStaticHost ? false : undefined,
   vite: {
     base: isGitHubPages ? "/zen-startpage/" : "/",
   },
-  tanstackStart: isGitHubPages
+  tanstackStart: isStaticHost
     ? {
         router: {
-          basepath: "/zen-startpage",
+          basepath: isGitHubPages ? "/zen-startpage" : "/",
         },
         spa: {
           enabled: true,
