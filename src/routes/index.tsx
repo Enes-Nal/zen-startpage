@@ -2,6 +2,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Plus, FolderPlus, Pencil, Trash2, Image as ImageIcon, Sun, Moon } from "lucide-react";
 import {
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, arrayMove, rectSortingStrategy } from "@dnd-kit/sortable";
+import {
   type Data,
   type Shortcut,
   type Category,
@@ -80,6 +89,24 @@ function Home() {
 
   const isDark = prefs.theme === "dark";
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+  );
+
+  const handleDragEnd = (categoryId: string) => (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setData((d) => {
+      const inCat = d.shortcuts.filter((s) => s.categoryId === categoryId);
+      const others = d.shortcuts.filter((s) => s.categoryId !== categoryId);
+      const oldIndex = inCat.findIndex((s) => s.id === active.id);
+      const newIndex = inCat.findIndex((s) => s.id === over.id);
+      if (oldIndex === -1 || newIndex === -1) return d;
+      const reordered = arrayMove(inCat, oldIndex, newIndex);
+      return { ...d, shortcuts: [...others, ...reordered] };
+    });
+  };
+
   return (
     <main
       className="relative flex min-h-screen items-center justify-center bg-background bg-cover bg-center bg-no-repeat p-6"
@@ -155,25 +182,33 @@ function Home() {
                     )}
                   </div>
                 </div>
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] gap-1">
-                  {items.map((s) => (
-                    <ShortcutTile
-                      key={s.id}
-                      shortcut={s}
-                      onEdit={() => setShortcutDialog({ open: true, editing: s })}
-                      onDelete={() => deleteShortcut(s.id)}
-                    />
-                  ))}
-                  <button
-                    onClick={() => setShortcutDialog({ open: true, categoryId: cat.id })}
-                    className="flex flex-col items-center gap-2 rounded-lg p-3 text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
-                  >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-md border border-dashed border-border">
-                      <Plus className="h-4 w-4" />
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd(cat.id)}
+                >
+                  <SortableContext items={items.map((s) => s.id)} strategy={rectSortingStrategy}>
+                    <div className="grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] gap-1">
+                      {items.map((s) => (
+                        <ShortcutTile
+                          key={s.id}
+                          shortcut={s}
+                          onEdit={() => setShortcutDialog({ open: true, editing: s })}
+                          onDelete={() => deleteShortcut(s.id)}
+                        />
+                      ))}
+                      <button
+                        onClick={() => setShortcutDialog({ open: true, categoryId: cat.id })}
+                        className="flex flex-col items-center gap-2 rounded-lg p-3 text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
+                      >
+                        <div className="flex h-12 w-12 items-center justify-center rounded-md border border-dashed border-border">
+                          <Plus className="h-4 w-4" />
+                        </div>
+                        <span className="text-[10px]">Add</span>
+                      </button>
                     </div>
-                    <span className="text-[10px]">Add</span>
-                  </button>
-                </div>
+                  </SortableContext>
+                </DndContext>
               </section>
             );
           })}
