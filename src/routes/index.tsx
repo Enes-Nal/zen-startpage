@@ -49,9 +49,10 @@ function Home() {
   }, [data, hydrated]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    savePrefs(prefs);
-    document.documentElement.classList.toggle("dark", prefs.theme === "dark");
+    if (typeof document !== "undefined") {
+      document.documentElement.classList.toggle("dark", prefs.theme === "dark");
+    }
+    if (hydrated) savePrefs(prefs);
   }, [prefs, hydrated]);
 
   const upsertShortcut = (s: Shortcut) => {
