@@ -30,22 +30,150 @@ const defaultThemePrefs = {
   cardOpacity: 48,
   fontFamily: fontOptions[0].value,
   cornerRadius: 24,
+  pagePadding: 24,
+  cardWidth: 768,
+  cardPadding: 32,
+  categoryGap: 32,
+  categoryHeaderGap: 16,
+  shortcutGap: 4,
+  tilePadding: 12,
+  tileMinWidth: 80,
+  iconBoxSize: 56,
+  iconSize: 32,
+  actionGap: 12,
 };
+
+type SliderControl = {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  unit?: string;
+  onValueChange: (value: number) => void;
+};
+
+function ControlGrid({ controls }: { controls: SliderControl[] }) {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      {controls.map((control) => (
+        <div key={control.label} className="space-y-3">
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-sm text-foreground">{control.label}</span>
+            <span className="text-xs tabular-nums text-muted-foreground">
+              {control.value}
+              {control.unit ?? "px"}
+            </span>
+          </div>
+          <Slider
+            value={[control.value]}
+            min={control.min}
+            max={control.max}
+            step={control.step ?? 1}
+            onValueChange={([value]) => control.onValueChange(value)}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function ThemeSettingsDialog({ open, prefs, onOpenChange, onChange }: Props) {
   const activeFont =
     fontOptions.find((font) => font.value === prefs.fontFamily)?.id || fontOptions[0].id;
+  const spacingControls: SliderControl[] = [
+    {
+      label: "Page margin",
+      value: prefs.pagePadding,
+      min: 0,
+      max: 80,
+      onValueChange: (pagePadding) => onChange({ pagePadding }),
+    },
+    {
+      label: "Card width",
+      value: prefs.cardWidth,
+      min: 360,
+      max: 1120,
+      step: 8,
+      onValueChange: (cardWidth) => onChange({ cardWidth }),
+    },
+    {
+      label: "Card padding",
+      value: prefs.cardPadding,
+      min: 0,
+      max: 80,
+      onValueChange: (cardPadding) => onChange({ cardPadding }),
+    },
+    {
+      label: "Between categories",
+      value: prefs.categoryGap,
+      min: 0,
+      max: 96,
+      onValueChange: (categoryGap) => onChange({ categoryGap }),
+    },
+    {
+      label: "Title to shortcuts",
+      value: prefs.categoryHeaderGap,
+      min: 0,
+      max: 48,
+      onValueChange: (categoryHeaderGap) => onChange({ categoryHeaderGap }),
+    },
+    {
+      label: "Button offset",
+      value: prefs.actionGap,
+      min: 0,
+      max: 48,
+      onValueChange: (actionGap) => onChange({ actionGap }),
+    },
+  ];
+  const shortcutControls: SliderControl[] = [
+    {
+      label: "Between shortcuts",
+      value: prefs.shortcutGap,
+      min: 0,
+      max: 32,
+      onValueChange: (shortcutGap) => onChange({ shortcutGap }),
+    },
+    {
+      label: "Tile padding",
+      value: prefs.tilePadding,
+      min: 0,
+      max: 32,
+      onValueChange: (tilePadding) => onChange({ tilePadding }),
+    },
+    {
+      label: "Tile width",
+      value: prefs.tileMinWidth,
+      min: 56,
+      max: 160,
+      onValueChange: (tileMinWidth) => onChange({ tileMinWidth }),
+    },
+    {
+      label: "Icon box",
+      value: prefs.iconBoxSize,
+      min: 32,
+      max: 96,
+      onValueChange: (iconBoxSize) => onChange({ iconBoxSize }),
+    },
+    {
+      label: "Icon size",
+      value: prefs.iconSize,
+      min: 16,
+      max: 72,
+      onValueChange: (iconSize) => onChange({ iconSize }),
+    },
+  ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Palette className="h-4 w-4" />
             Theme settings
           </DialogTitle>
           <DialogDescription className="sr-only">
-            Adjust the homepage gradient, card opacity, font, and corner radius.
+            Adjust the homepage appearance, spacing, shortcut sizing, and layout.
           </DialogDescription>
         </DialogHeader>
 
@@ -103,6 +231,16 @@ export function ThemeSettingsDialog({ open, prefs, onOpenChange, onChange }: Pro
               step={1}
               onValueChange={([cardOpacity]) => onChange({ cardOpacity })}
             />
+          </section>
+
+          <section className="space-y-4">
+            <Label>Layout spacing</Label>
+            <ControlGrid controls={spacingControls} />
+          </section>
+
+          <section className="space-y-4">
+            <Label>Shortcut sizing</Label>
+            <ControlGrid controls={shortcutControls} />
           </section>
 
           <section className="grid gap-4 sm:grid-cols-2">

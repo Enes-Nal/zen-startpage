@@ -32,18 +32,18 @@ export function ShortcutTile({ shortcut, onEdit, onDelete }: Props) {
         href={href}
         {...attributes}
         {...listeners}
-        className="flex cursor-grab flex-col items-center gap-2 rounded-[var(--home-item-radius)] p-3 transition-colors hover:bg-accent active:cursor-grabbing"
+        className="flex cursor-grab flex-col items-center gap-2 rounded-[var(--home-item-radius)] p-[var(--home-tile-padding)] transition-colors hover:bg-accent active:cursor-grabbing"
         onClick={(e) => {
           // Prevent navigation if a drag just happened
           if (isDragging) e.preventDefault();
         }}
       >
-        <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-[var(--home-item-radius)] border border-border bg-card">
+        <div className="flex h-[var(--home-icon-box-size)] w-[var(--home-icon-box-size)] items-center justify-center overflow-hidden rounded-[var(--home-item-radius)] border border-border bg-card">
           {icon && !imgError ? (
             <img
               src={icon}
               alt=""
-              className="h-8 w-8 object-contain grayscale"
+              className="h-[var(--home-icon-size)] w-[var(--home-icon-size)] object-contain grayscale"
               onError={() => setImgError(true)}
               draggable={false}
             />

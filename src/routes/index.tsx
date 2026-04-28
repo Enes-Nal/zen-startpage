@@ -119,6 +119,17 @@ function Home() {
     backgroundPosition: "center",
     "--home-radius": `${prefs.cornerRadius}px`,
     "--home-item-radius": `${Math.max(6, Math.round(prefs.cornerRadius * 0.45))}px`,
+    "--home-page-padding": `${prefs.pagePadding}px`,
+    "--home-card-width": `${prefs.cardWidth}px`,
+    "--home-card-padding": `${prefs.cardPadding}px`,
+    "--home-category-gap": `${prefs.categoryGap}px`,
+    "--home-category-header-gap": `${prefs.categoryHeaderGap}px`,
+    "--home-shortcut-gap": `${prefs.shortcutGap}px`,
+    "--home-tile-padding": `${prefs.tilePadding}px`,
+    "--home-tile-min-width": `${prefs.tileMinWidth}px`,
+    "--home-icon-box-size": `${prefs.iconBoxSize}px`,
+    "--home-icon-size": `${prefs.iconSize}px`,
+    "--home-action-gap": `${prefs.actionGap}px`,
   } as CSSProperties;
   const cardStyle = {
     borderRadius: "var(--home-radius)",
@@ -145,7 +156,7 @@ function Home() {
 
   return (
     <main
-      className="relative flex min-h-screen items-center justify-center bg-background bg-cover bg-center bg-no-repeat p-6"
+      className="relative flex min-h-screen items-center justify-center bg-background bg-cover bg-center bg-no-repeat p-[var(--home-page-padding)]"
       style={pageStyle}
     >
       {/* subtle overlay for legibility when bg image present */}
@@ -176,18 +187,18 @@ function Home() {
         </button>
       </div>
 
-      <div className="relative z-10 flex w-full max-w-3xl flex-col items-end gap-3">
+      <div className="relative z-10 flex w-full max-w-[var(--home-card-width)] flex-col items-end gap-[var(--home-action-gap)]">
         {/* Centered card */}
         <div
-          className="w-full border-2 border-border p-8 shadow-2xl backdrop-blur-xl"
+          className="w-full border-2 border-border p-[var(--home-card-padding)] shadow-2xl backdrop-blur-xl"
           style={cardStyle}
         >
-          <div className="space-y-8">
+          <div className="space-y-[var(--home-category-gap)]">
             {data.categories.map((cat) => {
               const items = data.shortcuts.filter((s) => s.categoryId === cat.id);
               return (
                 <section key={cat.id}>
-                  <div className="group mb-4 flex items-center gap-3 border-b border-border/60 pb-2">
+                  <div className="group mb-[var(--home-category-header-gap)] flex items-center gap-3 border-b border-border/60 pb-2">
                     <h2 className="text-[10px] font-medium tracking-[0.25em] text-foreground uppercase">
                       {cat.name}
                     </h2>
@@ -216,7 +227,7 @@ function Home() {
                     onDragEnd={handleDragEnd(cat.id)}
                   >
                     <SortableContext items={items.map((s) => s.id)} strategy={rectSortingStrategy}>
-                      <div className="grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] gap-1">
+                      <div className="grid grid-cols-[repeat(auto-fill,minmax(var(--home-tile-min-width),1fr))] gap-[var(--home-shortcut-gap)]">
                         {items.map((s) => (
                           <ShortcutTile
                             key={s.id}
@@ -227,9 +238,9 @@ function Home() {
                         ))}
                         <button
                           onClick={() => setShortcutDialog({ open: true, categoryId: cat.id })}
-                          className="flex flex-col items-center gap-2 rounded-[var(--home-item-radius)] p-3 text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
+                          className="flex flex-col items-center gap-2 rounded-[var(--home-item-radius)] p-[var(--home-tile-padding)] text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
                         >
-                          <div className="flex h-12 w-12 items-center justify-center rounded-[var(--home-item-radius)] border border-dashed border-border">
+                          <div className="flex h-[var(--home-icon-box-size)] w-[var(--home-icon-box-size)] items-center justify-center rounded-[var(--home-item-radius)] border border-dashed border-border">
                             <Plus className="h-4 w-4" />
                           </div>
                           <span className="text-[10px]">Add</span>

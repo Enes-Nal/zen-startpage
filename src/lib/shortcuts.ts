@@ -26,6 +26,17 @@ export type Prefs = {
   cardOpacity: number;
   fontFamily: string;
   cornerRadius: number;
+  pagePadding: number;
+  cardWidth: number;
+  cardPadding: number;
+  categoryGap: number;
+  categoryHeaderGap: number;
+  shortcutGap: number;
+  tilePadding: number;
+  tileMinWidth: number;
+  iconBoxSize: number;
+  iconSize: number;
+  actionGap: number;
 };
 
 const defaultData: Data = {
@@ -93,6 +104,17 @@ export const defaultPrefs: Prefs = {
   cardOpacity: 48,
   fontFamily: fontOptions[0].value,
   cornerRadius: 24,
+  pagePadding: 24,
+  cardWidth: 768,
+  cardPadding: 32,
+  categoryGap: 32,
+  categoryHeaderGap: 16,
+  shortcutGap: 4,
+  tilePadding: 12,
+  tileMinWidth: 80,
+  iconBoxSize: 56,
+  iconSize: 32,
+  actionGap: 12,
 };
 
 export function loadPrefs(): Prefs {
