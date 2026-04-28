@@ -90,6 +90,13 @@ export function ShortcutDialog({
               onChange={(e) => setUrl(e.target.value)}
               autoFocus
             />
+            <label className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Checkbox
+                checked={autoName}
+                onCheckedChange={(v) => setAutoName(v === true)}
+              />
+              Auto-fill from domain if blank
+            </label>
           </div>
           <div className="space-y-2">
             <Label htmlFor="name">Name (optional)</Label>
