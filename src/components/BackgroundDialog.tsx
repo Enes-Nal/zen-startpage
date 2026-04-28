@@ -55,6 +55,11 @@ export function BackgroundDialog({ open, onOpenChange, onApply, onClear }: Props
     setLoading(false);
   };
 
+  useEffect(() => {
+    if (open && results.length === 0) search();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
   const handleFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
