@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
-type UnsplashHit = { id: string; thumb: string; full: string };
+type Hit = { id: string; thumb: string; full: string };
 
 type Props = {
   open: boolean;
@@ -19,24 +19,46 @@ type Props = {
   onClear: () => void;
 };
 
+// Seed list of curated Picsum image IDs (Unsplash photos, no API key required).
+// Picsum is reliable and supports deterministic IDs + sizes.
+const CURATED_IDS = [
+  1018, 1015, 1019, 1024, 1043, 1050, 1062, 1074, 1080, 1084,
+  110, 119, 122, 129, 142, 152, 164, 177, 188, 192,
+  201, 217, 225, 237, 244, 250, 257, 274, 295, 309,
+  315, 325, 326, 338, 357, 365, 387, 392, 401, 433,
+  447, 452, 469, 488, 491, 500, 513, 528, 532, 547,
+];
+
+function hashString(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
 export function BackgroundDialog({ open, onOpenChange, onApply, onClear }: Props) {
-  const [query, setQuery] = useState("nature");
-  const [results, setResults] = useState<UnsplashHit[]>([]);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Hit[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const search = async () => {
+  const search = () => {
     setLoading(true);
-    // Use Unsplash Source — no API key needed. Generate variations.
-    const q = encodeURIComponent(query.trim() || "nature");
-    const seeds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-    const hits = seeds.map((s) => ({
-      id: `${q}-${s}`,
-      thumb: `https://source.unsplash.com/400x300/?${q}&sig=${s}`,
-      full: `https://source.unsplash.com/1920x1080/?${q}&sig=${s}`,
+    const q = query.trim();
+    // Pick 12 curated images, deterministic from query (so search feels stable)
+    const offset = q ? hashString(q) % CURATED_IDS.length : Math.floor(Math.random() * CURATED_IDS.length);
+    const picks = Array.from({ length: 12 }, (_, i) => CURATED_IDS[(offset + i) % CURATED_IDS.length]);
+    const hits: Hit[] = picks.map((id) => ({
+      id: String(id),
+      thumb: `https://picsum.photos/id/${id}/400/300`,
+      full: `https://picsum.photos/id/${id}/1920/1080`,
     }));
     setResults(hits);
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (open && results.length === 0) search();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const handleFile = (file: File) => {
     const reader = new FileReader();
@@ -63,16 +85,16 @@ export function BackgroundDialog({ open, onOpenChange, onApply, onClear }: Props
             />
           </div>
           <div className="space-y-2">
-            <Label>Search Unsplash</Label>
+            <Label>Browse photos</Label>
             <div className="flex gap-2">
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && search()}
-                placeholder="mountains, ocean, abstract..."
+                placeholder="Type anything for a fresh set..."
               />
               <Button onClick={search} disabled={loading}>
-                Search
+                Shuffle
               </Button>
             </div>
             {results.length > 0 && (
