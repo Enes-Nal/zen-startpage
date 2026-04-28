@@ -19,13 +19,13 @@ type Props = {
 
 export function CategoryDialog({ open, onOpenChange, initialName, onSave }: Props) {
   const [name, setName] = useState("");
+  const isEditing = initialName !== undefined;
 
   useEffect(() => {
-    if (open) setName(initialName || "");
+    if (open) setName(initialName ?? "");
   }, [open, initialName]);
 
   const submit = () => {
-    if (!name.trim()) return;
     onSave(name.trim());
     onOpenChange(false);
   };
@@ -34,7 +34,7 @@ export function CategoryDialog({ open, onOpenChange, initialName, onSave }: Prop
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{initialName ? "Rename category" : "New category"}</DialogTitle>
+          <DialogTitle>{isEditing ? "Rename category" : "New category"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-2">
           <Label htmlFor="cat-name">Name</Label>

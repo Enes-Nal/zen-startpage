@@ -30,10 +30,16 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Home — Browser Shortcuts" },
-      { name: "description", content: "A minimal black & white homepage for your browser shortcuts." },
+      {
+        name: "description",
+        content: "A minimal black & white homepage for your browser shortcuts.",
+      },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "Home — Browser Shortcuts" },
-      { property: "og:description", content: "A minimal black & white homepage for your browser shortcuts." },
+      {
+        property: "og:description",
+        content: "A minimal black & white homepage for your browser shortcuts.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
@@ -51,9 +57,9 @@ export const Route = createRootRoute({
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
-  const themeScript = `(function(){try{var p=localStorage.getItem('homepage-prefs-v1');var t=p?JSON.parse(p).theme:'dark';if(t!=='light'){document.documentElement.classList.add('dark');}}catch(e){document.documentElement.classList.add('dark');}})();`;
+  const themeScript = `(function(){try{var p=localStorage.getItem('homepage-prefs-v1');var prefs=p?JSON.parse(p):{};var t=prefs.theme||'dark';var f=prefs.fontFamily||'ui-sans-serif, system-ui, sans-serif';if(t!=='light'){document.documentElement.classList.add('dark');}document.documentElement.style.setProperty('--home-font-family',f);}catch(e){document.documentElement.classList.add('dark');document.documentElement.style.setProperty('--home-font-family','ui-sans-serif, system-ui, sans-serif');}})();`;
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

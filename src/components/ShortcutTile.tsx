@@ -32,13 +32,13 @@ export function ShortcutTile({ shortcut, onEdit, onDelete }: Props) {
         href={href}
         {...attributes}
         {...listeners}
-        className="flex cursor-grab flex-col items-center gap-2 rounded-lg p-3 transition-colors hover:bg-accent active:cursor-grabbing"
+        className="flex cursor-grab flex-col items-center gap-2 rounded-[var(--home-item-radius)] p-3 transition-colors hover:bg-accent active:cursor-grabbing"
         onClick={(e) => {
           // Prevent navigation if a drag just happened
           if (isDragging) e.preventDefault();
         }}
       >
-        <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-md border border-border bg-card">
+        <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-[var(--home-item-radius)] border border-border bg-card">
           {icon && !imgError ? (
             <img
               src={icon}
@@ -54,9 +54,7 @@ export function ShortcutTile({ shortcut, onEdit, onDelete }: Props) {
           )}
         </div>
         {shortcut.name && (
-          <span className="max-w-[90px] truncate text-xs text-foreground">
-            {shortcut.name}
-          </span>
+          <span className="max-w-[90px] truncate text-xs text-foreground">{shortcut.name}</span>
         )}
       </a>
       <div className="absolute right-0 top-0 hidden gap-1 group-hover:flex">

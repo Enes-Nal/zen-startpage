@@ -22,14 +22,78 @@ export type Data = {
 export type Prefs = {
   theme: "light" | "dark";
   background?: string; // URL or data URL
+  gradient: string;
+  cardOpacity: number;
+  fontFamily: string;
+  cornerRadius: number;
 };
 
 const defaultData: Data = {
-  categories: [{ id: "default", name: "General" }],
+  categories: [{ id: "default", name: "" }],
   shortcuts: [],
 };
 
-const defaultPrefs: Prefs = { theme: "dark" };
+export const gradientOptions = [
+  {
+    id: "ember",
+    name: "Ember",
+    value: "linear-gradient(135deg, oklch(0.22 0.08 29), oklch(0.62 0.15 55), oklch(0.82 0.08 97))",
+  },
+  {
+    id: "tidepool",
+    name: "Tidepool",
+    value:
+      "linear-gradient(145deg, oklch(0.2 0.06 204), oklch(0.5 0.12 180), oklch(0.78 0.09 147))",
+  },
+  {
+    id: "orchard",
+    name: "Orchard",
+    value:
+      "linear-gradient(140deg, oklch(0.24 0.08 136), oklch(0.58 0.13 105), oklch(0.87 0.08 77))",
+  },
+  {
+    id: "ink",
+    name: "Ink",
+    value:
+      "linear-gradient(150deg, oklch(0.13 0.04 260), oklch(0.29 0.07 285), oklch(0.55 0.09 340))",
+  },
+  {
+    id: "paper",
+    name: "Paper",
+    value: "linear-gradient(135deg, oklch(0.96 0.02 86), oklch(0.91 0.04 54), oklch(0.86 0.03 28))",
+  },
+];
+
+export const fontOptions = [
+  {
+    id: "system",
+    name: "System",
+    value: "ui-sans-serif, system-ui, sans-serif",
+  },
+  {
+    id: "serif",
+    name: "Editorial",
+    value: 'Georgia, "Times New Roman", serif',
+  },
+  {
+    id: "rounded",
+    name: "Rounded",
+    value: '"Trebuchet MS", "Avenir Next", ui-sans-serif, sans-serif',
+  },
+  {
+    id: "mono",
+    name: "Mono",
+    value: '"SFMono-Regular", Consolas, "Liberation Mono", monospace',
+  },
+];
+
+export const defaultPrefs: Prefs = {
+  theme: "dark",
+  gradient: gradientOptions[0].value,
+  cardOpacity: 48,
+  fontFamily: fontOptions[0].value,
+  cornerRadius: 24,
+};
 
 export function loadPrefs(): Prefs {
   if (typeof window === "undefined") return defaultPrefs;
@@ -64,6 +128,11 @@ export function loadData(): Data {
     if (!raw) return defaultData;
     const parsed = JSON.parse(raw);
     if (!parsed.categories?.length) parsed.categories = defaultData.categories;
+    parsed.categories = parsed.categories.map((category: Category) =>
+      category.id === "default" && category.name === "General"
+        ? { ...category, name: "" }
+        : category,
+    );
     return parsed;
   } catch {
     return defaultData;
