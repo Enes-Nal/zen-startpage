@@ -1,17 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Plus, FolderPlus, Pencil, Trash2 } from "lucide-react";
+import { Plus, FolderPlus, Pencil, Trash2, Image as ImageIcon, Sun, Moon } from "lucide-react";
 import {
   type Data,
   type Shortcut,
   type Category,
+  type Prefs,
   loadData,
   saveData,
+  loadPrefs,
+  savePrefs,
   uid,
 } from "@/lib/shortcuts";
 import { ShortcutTile } from "@/components/ShortcutTile";
 import { ShortcutDialog } from "@/components/ShortcutDialog";
 import { CategoryDialog } from "@/components/CategoryDialog";
+import { BackgroundDialog } from "@/components/BackgroundDialog";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -19,18 +23,27 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const [data, setData] = useState<Data>({ categories: [{ id: "default", name: "General" }], shortcuts: [] });
+  const [prefs, setPrefs] = useState<Prefs>({ theme: "dark" });
   const [hydrated, setHydrated] = useState(false);
   const [shortcutDialog, setShortcutDialog] = useState<{ open: boolean; categoryId?: string; editing?: Shortcut }>({ open: false });
   const [categoryDialog, setCategoryDialog] = useState<{ open: boolean; editing?: Category }>({ open: false });
+  const [bgDialog, setBgDialog] = useState(false);
 
   useEffect(() => {
     setData(loadData());
+    setPrefs(loadPrefs());
     setHydrated(true);
   }, []);
 
   useEffect(() => {
     if (hydrated) saveData(data);
   }, [data, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    savePrefs(prefs);
+    document.documentElement.classList.toggle("dark", prefs.theme === "dark");
+  }, [prefs, hydrated]);
 
   const upsertShortcut = (s: Shortcut) => {
     setData((d) => {
@@ -65,11 +78,44 @@ function Home() {
     }));
   };
 
+  const isDark = prefs.theme === "dark";
+
   return (
-    <main className="min-h-screen bg-background px-6 py-12">
-      <div className="mx-auto max-w-5xl">
-        <header className="mb-12 flex items-center justify-between">
-          <h1 className="text-sm font-medium tracking-widest text-muted-foreground uppercase">
+    <main
+      className="relative flex min-h-screen items-center justify-center bg-background bg-cover bg-center bg-no-repeat p-6"
+      style={prefs.background ? { backgroundImage: `url(${prefs.background})` } : undefined}
+    >
+      {/* subtle overlay for legibility when bg image present */}
+      {prefs.background && (
+        <div className="absolute inset-0 bg-black/30" aria-hidden />
+      )}
+
+      {/* Top-right toolbar */}
+      <div className="absolute right-4 top-4 z-10 flex items-center gap-2">
+        <button
+          onClick={() => setBgDialog(true)}
+          className="rounded-md border border-border bg-card/70 p-2 text-foreground/80 backdrop-blur transition-colors hover:text-foreground"
+          aria-label="Background"
+        >
+          <ImageIcon className="h-4 w-4" />
+        </button>
+        <button
+          onClick={() => setPrefs((p) => ({ ...p, theme: isDark ? "light" : "dark" }))}
+          className="rounded-md border border-border bg-card/70 p-2 text-foreground/80 backdrop-blur transition-colors hover:text-foreground"
+          aria-label="Toggle theme"
+        >
+          {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        </button>
+      </div>
+
+      {/* Centered card */}
+      <div
+        className={`relative z-10 w-full max-w-3xl rounded-2xl border-2 border-border p-8 shadow-2xl backdrop-blur-xl ${
+          isDark ? "bg-black/40" : "bg-white/60"
+        }`}
+      >
+        <header className="mb-8 flex items-center justify-between">
+          <h1 className="text-xs font-medium tracking-[0.3em] text-foreground uppercase">
             Home
           </h1>
           <button
@@ -81,16 +127,16 @@ function Home() {
           </button>
         </header>
 
-        <div className="space-y-12">
+        <div className="space-y-8">
           {data.categories.map((cat) => {
             const items = data.shortcuts.filter((s) => s.categoryId === cat.id);
             return (
               <section key={cat.id}>
-                <div className="group mb-4 flex items-center gap-3 border-b border-border pb-2">
-                  <h2 className="text-xs font-medium tracking-widest text-foreground uppercase">
+                <div className="group mb-4 flex items-center gap-3 border-b border-border/60 pb-2">
+                  <h2 className="text-[10px] font-medium tracking-[0.25em] text-foreground uppercase">
                     {cat.name}
                   </h2>
-                  <div className="hidden gap-1 group-hover:flex">
+                  <div className="hidden gap-2 group-hover:flex">
                     <button
                       onClick={() => setCategoryDialog({ open: true, editing: cat })}
                       className="text-muted-foreground hover:text-foreground"
@@ -109,7 +155,7 @@ function Home() {
                     )}
                   </div>
                 </div>
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-2">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] gap-1">
                   {items.map((s) => (
                     <ShortcutTile
                       key={s.id}
@@ -120,12 +166,12 @@ function Home() {
                   ))}
                   <button
                     onClick={() => setShortcutDialog({ open: true, categoryId: cat.id })}
-                    className="flex flex-col items-center gap-2 rounded-lg p-3 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                    className="flex flex-col items-center gap-2 rounded-lg p-3 text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground"
                   >
-                    <div className="flex h-14 w-14 items-center justify-center rounded-md border border-dashed border-border">
-                      <Plus className="h-5 w-5" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-md border border-dashed border-border">
+                      <Plus className="h-4 w-4" />
                     </div>
-                    <span className="text-xs">Add</span>
+                    <span className="text-[10px]">Add</span>
                   </button>
                 </div>
               </section>
@@ -151,6 +197,13 @@ function Home() {
           if (categoryDialog.editing) renameCategory(categoryDialog.editing.id, name);
           else addCategory(name);
         }}
+      />
+
+      <BackgroundDialog
+        open={bgDialog}
+        onOpenChange={setBgDialog}
+        onApply={(url) => setPrefs((p) => ({ ...p, background: url }))}
+        onClear={() => setPrefs((p) => ({ ...p, background: undefined }))}
       />
     </main>
   );

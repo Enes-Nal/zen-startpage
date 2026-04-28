@@ -12,16 +12,50 @@ export type Category = {
 };
 
 const STORAGE_KEY = "homepage-data-v1";
+const PREFS_KEY = "homepage-prefs-v1";
 
 export type Data = {
   categories: Category[];
   shortcuts: Shortcut[];
 };
 
+export type Prefs = {
+  theme: "light" | "dark";
+  background?: string; // URL or data URL
+};
+
 const defaultData: Data = {
   categories: [{ id: "default", name: "General" }],
   shortcuts: [],
 };
+
+const defaultPrefs: Prefs = { theme: "dark" };
+
+export function loadPrefs(): Prefs {
+  if (typeof window === "undefined") return defaultPrefs;
+  try {
+    const raw = localStorage.getItem(PREFS_KEY);
+    if (!raw) return defaultPrefs;
+    return { ...defaultPrefs, ...JSON.parse(raw) };
+  } catch {
+    return defaultPrefs;
+  }
+}
+
+export function savePrefs(p: Prefs) {
+  localStorage.setItem(PREFS_KEY, JSON.stringify(p));
+}
+
+export function domainName(url: string): string {
+  try {
+    const u = new URL(normalizeUrl(url));
+    const host = u.hostname.replace(/^www\./, "");
+    const base = host.split(".")[0];
+    return base.charAt(0).toUpperCase() + base.slice(1);
+  } catch {
+    return "";
+  }
+}
 
 export function loadData(): Data {
   if (typeof window === "undefined") return defaultData;

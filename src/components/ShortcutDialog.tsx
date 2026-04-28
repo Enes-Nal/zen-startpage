@@ -16,7 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { type Shortcut, type Category, uid, getFaviconUrl } from "@/lib/shortcuts";
+import { Checkbox } from "@/components/ui/checkbox";
+import { type Shortcut, type Category, uid, getFaviconUrl, domainName } from "@/lib/shortcuts";
 
 type Props = {
   open: boolean;
@@ -39,6 +40,7 @@ export function ShortcutDialog({
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("");
   const [categoryId, setCategoryId] = useState(defaultCategoryId);
+  const [autoName, setAutoName] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -46,6 +48,7 @@ export function ShortcutDialog({
       setName(initial?.name || "");
       setIcon(initial?.icon || "");
       setCategoryId(initial?.categoryId || defaultCategoryId);
+      setAutoName(false);
     }
   }, [open, initial, defaultCategoryId]);
 
@@ -57,10 +60,12 @@ export function ShortcutDialog({
 
   const submit = () => {
     if (!url.trim()) return;
+    let finalName = name.trim();
+    if (!finalName && autoName) finalName = domainName(url);
     onSave({
       id: initial?.id || uid(),
       url: url.trim(),
-      name: name.trim() || undefined,
+      name: finalName || undefined,
       icon: icon.trim() || undefined,
       categoryId,
     });
@@ -85,6 +90,13 @@ export function ShortcutDialog({
               onChange={(e) => setUrl(e.target.value)}
               autoFocus
             />
+            <label className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Checkbox
+                checked={autoName}
+                onCheckedChange={(v) => setAutoName(v === true)}
+              />
+              Auto-fill from domain if blank
+            </label>
           </div>
           <div className="space-y-2">
             <Label htmlFor="name">Name (optional)</Label>
