@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -80,16 +80,16 @@ export function BackgroundDialog({ open, onOpenChange, onApply, onClear }: Props
             />
           </div>
           <div className="space-y-2">
-            <Label>Search Unsplash</Label>
+            <Label>Browse photos</Label>
             <div className="flex gap-2">
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && search()}
-                placeholder="mountains, ocean, abstract..."
+                placeholder="Type anything for a fresh set..."
               />
               <Button onClick={search} disabled={loading}>
-                Search
+                Shuffle
               </Button>
             </div>
             {results.length > 0 && (
