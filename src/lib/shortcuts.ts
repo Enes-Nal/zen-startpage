@@ -1,3 +1,5 @@
+import { googleFontFamilies } from "./google-fonts";
+
 export type Shortcut = {
   id: string;
   url: string;
@@ -75,7 +77,7 @@ export const gradientOptions = [
   },
 ];
 
-export const fontOptions = [
+export const localFontOptions = [
   {
     id: "system",
     name: "System",
@@ -97,6 +99,24 @@ export const fontOptions = [
     value: '"SFMono-Regular", Consolas, "Liberation Mono", monospace',
   },
 ];
+
+export const googleFontOptions = googleFontFamilies.map((family) => ({
+  id: `google-${family.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`,
+  name: family,
+  value: `"${family}", sans-serif`,
+  googleFamily: family,
+}));
+
+export const fontOptions = [...localFontOptions, ...googleFontOptions];
+
+export function getGoogleFontFamily(fontFamily: string): string | undefined {
+  return googleFontOptions.find((option) => option.value === fontFamily)?.googleFamily;
+}
+
+export function getGoogleFontStylesheetUrl(family: string): string {
+  const encodedFamily = family.trim().replace(/\s+/g, "+");
+  return `https://fonts.googleapis.com/css2?family=${encodedFamily}&display=swap`;
+}
 
 export const defaultPrefs: Prefs = {
   theme: "dark",

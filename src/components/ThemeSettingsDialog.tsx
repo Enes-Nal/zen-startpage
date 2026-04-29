@@ -1,11 +1,4 @@
-import { Palette, RotateCcw } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Palette, RotateCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -164,20 +157,35 @@ export function ThemeSettingsDialog({ open, prefs, onOpenChange, onChange }: Pro
     },
   ];
 
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+    <aside
+      className="fixed inset-y-0 right-0 z-40 flex w-full max-w-[420px] flex-col border-l border-border bg-background/95 shadow-2xl backdrop-blur-xl"
+      aria-label="Theme settings"
+    >
+      <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
+        <div>
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
             <Palette className="h-4 w-4" />
             Theme settings
-          </DialogTitle>
-          <DialogDescription className="sr-only">
+          </h2>
+          <p className="sr-only">
             Adjust the homepage appearance, spacing, shortcut sizing, and layout.
-          </DialogDescription>
-        </DialogHeader>
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => onOpenChange(false)}
+          className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          aria-label="Close theme settings"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
 
-        <div className="space-y-6">
+      <div className="flex-1 overflow-y-auto px-5 py-5">
+        <div className="space-y-6 pb-6">
           <section className="space-y-3">
             <div className="flex items-center justify-between gap-4">
               <Label>Gradient background</Label>
@@ -283,7 +291,7 @@ export function ThemeSettingsDialog({ open, prefs, onOpenChange, onChange }: Pro
             </div>
           </section>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </aside>
   );
 }

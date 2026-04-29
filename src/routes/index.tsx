@@ -29,8 +29,11 @@ import {
   loadPrefs,
   savePrefs,
   defaultPrefs,
+  getGoogleFontFamily,
+  getGoogleFontStylesheetUrl,
   uid,
 } from "@/lib/shortcuts";
+import { cn } from "@/lib/utils";
 import { ShortcutTile } from "@/components/ShortcutTile";
 import { ShortcutDialog } from "@/components/ShortcutDialog";
 import { CategoryDialog } from "@/components/CategoryDialog";
@@ -73,6 +76,22 @@ function Home() {
     if (typeof document !== "undefined") {
       document.documentElement.classList.toggle("dark", prefs.theme === "dark");
       document.documentElement.style.setProperty("--home-font-family", prefs.fontFamily);
+      const googleFamily = getGoogleFontFamily(prefs.fontFamily);
+      const fontLinkId = "home-google-font";
+      const existingLink = document.getElementById(fontLinkId) as HTMLLinkElement | null;
+      if (googleFamily) {
+        const href = getGoogleFontStylesheetUrl(googleFamily);
+        if (existingLink) existingLink.href = href;
+        else {
+          const link = document.createElement("link");
+          link.id = fontLinkId;
+          link.rel = "stylesheet";
+          link.href = href;
+          document.head.appendChild(link);
+        }
+      } else {
+        existingLink?.remove();
+      }
     }
     if (hydrated) savePrefs(prefs);
   }, [prefs, hydrated]);
@@ -156,7 +175,10 @@ function Home() {
 
   return (
     <main
-      className="relative flex min-h-screen items-center justify-center bg-background bg-cover bg-center bg-no-repeat p-[var(--home-page-padding)]"
+      className={cn(
+        "relative flex min-h-screen items-center justify-center bg-background bg-cover bg-center bg-no-repeat p-[var(--home-page-padding)] transition-[padding] duration-300",
+        themeDialog && "xl:pr-[calc(420px+var(--home-page-padding))]",
+      )}
       style={pageStyle}
     >
       {/* subtle overlay for legibility when bg image present */}
